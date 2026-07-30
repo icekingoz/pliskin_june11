@@ -1,6 +1,7 @@
-from playwright.sync_api import Page
 import pytest 
- 
+
+from playwright.sync_api import Page
+
 from pages.LoginPage import LoginPage
 from pages.InventoryPage import InventoryPage
  
