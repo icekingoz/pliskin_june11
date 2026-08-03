@@ -22,6 +22,10 @@ class InventoryPage:
         self.cart_link = page.locator("[data-test=\"shopping-cart-link\"]")
 
     # Methods (Wrapper)
+    def add_item_to_cart(self, item_id: str):
+        self.page.locator(f"[data-test=\"add-to-cart-{item_id}\"]").click()
+        return self
+
     def sort_products_by(self, option: str):
         # option is one of: az, za, lohi, hilo
         self.sort_dropdown.select_option(option)

@@ -4,15 +4,6 @@ from playwright.sync_api import Page
 from pages.LoginPage import LoginPage
 
 
-# TEMPORARY HELPER
-# Adding a product to the cart happens on the INVENTORY page, so really this
-# belongs on InventoryPage as add_item_to_cart(item_id). Until that method
-# exists, we keep it here in ONE place so there is only one line to move later.
-def add_item_to_cart(page: Page, item_id: str):
-    # item_id looks like "sauce-labs-backpack"
-    page.locator(f"[data-test=\"add-to-cart-{item_id}\"]").click()
-
-
 # Level 1 check: does the page load and can we see the button?
 def test_cart_page_loads(page: Page):
     login_page = LoginPage(page)
@@ -31,7 +22,7 @@ def test_added_item_appears_in_cart(page: Page):
     login_page.open()
     inventory_page = login_page.login_standard_user()
 
-    add_item_to_cart(page, "sauce-labs-backpack")
+    inventory_page.add_item_to_cart("sauce-labs-backpack")
     cart_page = inventory_page.open_cart()
 
     assert cart_page.get_item_count() == 1
@@ -54,7 +45,7 @@ def test_each_product_can_be_added(page: Page, item_id, item_name):
     login_page.open()
     inventory_page = login_page.login_standard_user()
 
-    add_item_to_cart(page, item_id)
+    inventory_page.add_item_to_cart(item_id)
     cart_page = inventory_page.open_cart()
 
     assert cart_page.get_item_count() == 1
@@ -67,8 +58,8 @@ def test_remove_one_item_from_cart(page: Page):
     login_page.open()
     inventory_page = login_page.login_standard_user()
 
-    add_item_to_cart(page, "sauce-labs-backpack")
-    add_item_to_cart(page, "sauce-labs-bike-light")
+    inventory_page.add_item_to_cart("sauce-labs-backpack")
+    inventory_page.add_item_to_cart("sauce-labs-bike-light")
 
     cart_page = inventory_page.open_cart()
 
@@ -91,8 +82,8 @@ def test_remove_both_items_by_chaining(page: Page):
     login_page.open()
     inventory_page = login_page.login_standard_user()
 
-    add_item_to_cart(page, "sauce-labs-backpack")
-    add_item_to_cart(page, "sauce-labs-bike-light")
+    inventory_page.add_item_to_cart("sauce-labs-backpack")
+    inventory_page.add_item_to_cart("sauce-labs-bike-light")
 
     cart_page = inventory_page.open_cart()
     cart_page.remove_item("sauce-labs-backpack").remove_item("sauce-labs-bike-light")
