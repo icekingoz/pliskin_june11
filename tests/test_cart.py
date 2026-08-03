@@ -1,15 +1,10 @@
 import pytest
-from playwright.sync_api import Page
 
-from pages.LoginPage import LoginPage
+from pages.InventoryPage import InventoryPage
 
 
 # Level 1 check: does the page load and can we see the button?
-def test_cart_page_loads(page: Page):
-    login_page = LoginPage(page)
-    login_page.open()
-    inventory_page = login_page.login_standard_user()
-
+def test_cart_page_loads(inventory_page: InventoryPage):
     cart_page = inventory_page.open_cart()
 
     assert cart_page.get_title().text_content() == "Your Cart"
@@ -17,11 +12,7 @@ def test_cart_page_loads(page: Page):
 
 
 # Standard example: one product, one clear story.
-def test_added_item_appears_in_cart(page: Page):
-    login_page = LoginPage(page)
-    login_page.open()
-    inventory_page = login_page.login_standard_user()
-
+def test_added_item_appears_in_cart(inventory_page: InventoryPage):
     inventory_page.add_item_to_cart("sauce-labs-backpack")
     cart_page = inventory_page.open_cart()
 
@@ -30,7 +21,6 @@ def test_added_item_appears_in_cart(page: Page):
 
 
 # Parameterized example: same steps, four different products.
-# pytest runs this test once per row, so one test becomes four.
 @pytest.mark.parametrize(
     "item_id, item_name",
     [
@@ -40,11 +30,7 @@ def test_added_item_appears_in_cart(page: Page):
         ("sauce-labs-onesie", "Sauce Labs Onesie"),
     ],
 )
-def test_each_product_can_be_added(page: Page, item_id, item_name):
-    login_page = LoginPage(page)
-    login_page.open()
-    inventory_page = login_page.login_standard_user()
-
+def test_each_product_can_be_added(inventory_page: InventoryPage, item_id, item_name):
     inventory_page.add_item_to_cart(item_id)
     cart_page = inventory_page.open_cart()
 
@@ -53,11 +39,7 @@ def test_each_product_can_be_added(page: Page, item_id, item_name):
 
 
 # Assignment 1: add two, check both names, remove one, count is 1.
-def test_remove_one_item_from_cart(page: Page):
-    login_page = LoginPage(page)
-    login_page.open()
-    inventory_page = login_page.login_standard_user()
-
+def test_remove_one_item_from_cart(inventory_page: InventoryPage):
     inventory_page.add_item_to_cart("sauce-labs-backpack")
     inventory_page.add_item_to_cart("sauce-labs-bike-light")
 
@@ -77,11 +59,7 @@ def test_remove_one_item_from_cart(page: Page):
 
 
 # remove_item returns self, so calls can be chained.
-def test_remove_both_items_by_chaining(page: Page):
-    login_page = LoginPage(page)
-    login_page.open()
-    inventory_page = login_page.login_standard_user()
-
+def test_remove_both_items_by_chaining(inventory_page: InventoryPage):
     inventory_page.add_item_to_cart("sauce-labs-backpack")
     inventory_page.add_item_to_cart("sauce-labs-bike-light")
 
@@ -93,11 +71,7 @@ def test_remove_both_items_by_chaining(page: Page):
 
 # Assignment 4: logout. CartPage.logout() imports LoginPage inside the method,
 # which is how we avoid the circular import between the page files.
-def test_logout_from_cart(page: Page):
-    login_page = LoginPage(page)
-    login_page.open()
-    inventory_page = login_page.login_standard_user()
-
+def test_logout_from_cart(inventory_page: InventoryPage):
     cart_page = inventory_page.open_cart()
     login_page_again = cart_page.logout()
 

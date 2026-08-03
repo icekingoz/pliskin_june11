@@ -16,6 +16,7 @@ __pycache__/
 allure-results/
 allure-report/
 test-results/
+report.html
 
 # Local config
 .env
