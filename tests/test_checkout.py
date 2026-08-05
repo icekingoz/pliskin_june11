@@ -1,22 +1,11 @@
 import pytest
-from playwright.sync_api import Page
 
-from pages.LoginPage import LoginPage
-
-
-# Same temporary helper as in test_cart.py — it belongs on InventoryPage later.
-def add_item_to_cart(page: Page, item_id: str):
-    page.locator(f"[data-test=\"add-to-cart-{item_id}\"]").click()
+from pages.InventoryPage import InventoryPage
 
 
 # Standard example: the full happy path, top to bottom.
-# Read it out loud — login, add, open cart, check out, assert.
-def test_checkout_happy_path(page: Page):
-    login_page = LoginPage(page)
-    login_page.open()
-    inventory_page = login_page.login_standard_user()
-
-    add_item_to_cart(page, "sauce-labs-backpack")
+def test_checkout_happy_path(inventory_page: InventoryPage):
+    inventory_page.add_item_to_cart("sauce-labs-backpack")
 
     cart_page = inventory_page.open_cart()
     assert cart_page.get_item_count() == 1
@@ -34,12 +23,8 @@ def test_checkout_happy_path(page: Page):
 
 
 # fill_information() and finish() both return self, so the steps can be chained.
-def test_checkout_chained(page: Page):
-    login_page = LoginPage(page)
-    login_page.open()
-    inventory_page = login_page.login_standard_user()
-
-    add_item_to_cart(page, "sauce-labs-bike-light")
+def test_checkout_chained(inventory_page: InventoryPage):
+    inventory_page.add_item_to_cart("sauce-labs-backpack")
 
     checkout_page = inventory_page.open_cart().start_checkout()
     checkout_page.fill_information("Solid", "Snake", "00001").finish()
@@ -57,12 +42,10 @@ def test_checkout_chained(page: Page):
         ("Alan", "Turing", "M1 1AE"),
     ],
 )
-def test_checkout_with_different_customers(page: Page, first_name, last_name, postal_code):
-    login_page = LoginPage(page)
-    login_page.open()
-    inventory_page = login_page.login_standard_user()
-
-    add_item_to_cart(page, "sauce-labs-backpack")
+def test_checkout_with_different_customers(
+    inventory_page: InventoryPage, first_name, last_name, postal_code
+):
+    inventory_page.add_item_to_cart("sauce-labs-backpack")
 
     checkout_page = inventory_page.open_cart().start_checkout()
     checkout_page.fill_information(first_name, last_name, postal_code).finish()
@@ -80,12 +63,10 @@ def test_checkout_with_different_customers(page: Page, first_name, last_name, po
         ("Solid", "Snake", "", "Error: Postal Code is required"),
     ],
 )
-def test_checkout_form_requires_all_fields(page: Page, first_name, last_name, postal_code, error):
-    login_page = LoginPage(page)
-    login_page.open()
-    inventory_page = login_page.login_standard_user()
-
-    add_item_to_cart(page, "sauce-labs-backpack")
+def test_checkout_form_requires_all_fields(
+    inventory_page: InventoryPage, first_name, last_name, postal_code, error
+):
+    inventory_page.add_item_to_cart("sauce-labs-backpack")
 
     checkout_page = inventory_page.open_cart().start_checkout()
     checkout_page.fill_information(first_name, last_name, postal_code)
@@ -97,12 +78,8 @@ def test_checkout_form_requires_all_fields(page: Page, first_name, last_name, po
 
 
 # The overview totals: subtotal is the price of what we added.
-def test_checkout_overview_subtotal(page: Page):
-    login_page = LoginPage(page)
-    login_page.open()
-    inventory_page = login_page.login_standard_user()
-
-    add_item_to_cart(page, "sauce-labs-backpack")   # $29.99
+def test_checkout_overview_subtotal(inventory_page: InventoryPage):
+    inventory_page.add_item_to_cart("sauce-labs-backpack")   # $29.99
 
     checkout_page = inventory_page.open_cart().start_checkout()
     checkout_page.fill_information("Solid", "Snake", "00001")
@@ -113,12 +90,8 @@ def test_checkout_overview_subtotal(page: Page):
 
 
 # After ordering, "Back Home" returns us to the products page.
-def test_back_home_after_order(page: Page):
-    login_page = LoginPage(page)
-    login_page.open()
-    inventory_page = login_page.login_standard_user()
-
-    add_item_to_cart(page, "sauce-labs-backpack")
+def test_back_home_after_order(inventory_page: InventoryPage):
+    inventory_page.add_item_to_cart("sauce-labs-backpack")
 
     checkout_page = inventory_page.open_cart().start_checkout()
     checkout_page.fill_information("Solid", "Snake", "00001").finish()

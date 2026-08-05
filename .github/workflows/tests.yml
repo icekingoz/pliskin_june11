@@ -1,3 +1,4 @@
+
 name: Tests
 
 on: push
@@ -12,4 +13,36 @@ jobs:
           python-version: "3.12"
       - run: pip install -r requirement.txt
       - run: playwright install --with-deps chromium
-      - run: xvfb-run python -m pytest
+
+      - name: Run tests
+        run: xvfb-run python -m pytest
+
+      # WITHOUT THIS STEP, NOTHING SURVIVES THE JOB.
+      # Files written into the runner's workspace are thrown away when the job
+      # ends. report.html and test-results/ exist during the run and then vanish.
+      - name: Upload report and artifacts
+        # `always()` is the important bit. Default behaviour is to skip a step
+        # once a previous one failed -- which is exactly when you want the
+        # screenshot and the trace.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report-${{ github.run_number }}
+          path: |
+            report.html
+            test-results/
+          # A green run produces no screenshots and no traces, so test-results/
+          # can legitimately be empty. Don't warn about it.
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Point at the artifact
+        if: always()
+        run: |
+          echo "### Test artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Download **test-report-${{ github.run_number }}** from the Artifacts" \
+               "section at the bottom of this page." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- \`report.html\` — open it in a browser" >> $GITHUB_STEP_SUMMARY
+          echo "- \`test-results/**/trace.zip\` — drop it on https://trace.playwright.dev" >> $GITHUB_STEP_SUMMARY
