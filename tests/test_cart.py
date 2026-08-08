@@ -4,6 +4,7 @@ from pages.InventoryPage import InventoryPage
 
 
 # Level 1 check: does the page load and can we see the button?
+# Stays on inventory_page — this test needs an EMPTY cart.
 def test_cart_page_loads(inventory_page: InventoryPage):
     cart_page = inventory_page.open_cart()
 
@@ -11,16 +12,7 @@ def test_cart_page_loads(inventory_page: InventoryPage):
     assert cart_page.get_checkout_button().is_visible()
 
 
-# Standard example: one product, one clear story.
-def test_added_item_appears_in_cart(inventory_page: InventoryPage):
-    inventory_page.add_item_to_cart("sauce-labs-backpack")
-    cart_page = inventory_page.open_cart()
-
-    assert cart_page.get_item_count() == 1
-    assert cart_page.get_item_names() == ["Sauce Labs Backpack"]
-
-
-# Parameterized example: same steps, four different products.
+# Parametrize + factory: the test data drives the cart_with call.
 @pytest.mark.parametrize(
     "item_id, item_name",
     [
@@ -30,20 +22,16 @@ def test_added_item_appears_in_cart(inventory_page: InventoryPage):
         ("sauce-labs-onesie", "Sauce Labs Onesie"),
     ],
 )
-def test_each_product_can_be_added(inventory_page: InventoryPage, item_id, item_name):
-    inventory_page.add_item_to_cart(item_id)
-    cart_page = inventory_page.open_cart()
+def test_each_product_can_be_added(cart_with, item_id, item_name):
+    cart_page = cart_with(item_id)
 
     assert cart_page.get_item_count() == 1
     assert item_name in cart_page.get_item_names()
 
 
 # Assignment 1: add two, check both names, remove one, count is 1.
-def test_remove_one_item_from_cart(inventory_page: InventoryPage):
-    inventory_page.add_item_to_cart("sauce-labs-backpack")
-    inventory_page.add_item_to_cart("sauce-labs-bike-light")
-
-    cart_page = inventory_page.open_cart()
+def test_remove_one_item_from_cart(cart_with):
+    cart_page = cart_with("sauce-labs-backpack", "sauce-labs-bike-light")
 
     # Both products are in the cart
     assert cart_page.get_item_count() == 2
@@ -58,12 +46,9 @@ def test_remove_one_item_from_cart(inventory_page: InventoryPage):
     assert cart_page.get_item_names() == ["Sauce Labs Bike Light"]
 
 
-# remove_item returns self, so calls can be chained.
-def test_remove_both_items_by_chaining(inventory_page: InventoryPage):
-    inventory_page.add_item_to_cart("sauce-labs-backpack")
-    inventory_page.add_item_to_cart("sauce-labs-bike-light")
-
-    cart_page = inventory_page.open_cart()
+# remove_item returns self, so calls can be chained. End state: cart empty.
+def test_remove_both_items_by_chaining(cart_with):
+    cart_page = cart_with("sauce-labs-backpack", "sauce-labs-bike-light")
     cart_page.remove_item("sauce-labs-backpack").remove_item("sauce-labs-bike-light")
 
     assert cart_page.get_item_count() == 0

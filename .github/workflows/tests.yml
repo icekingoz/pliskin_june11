@@ -6,6 +6,12 @@ on: push
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    env: 
+      SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
+      SAUCE_PASSWORD: ${{ secrets.SECRET_SAUSE }}
+      BASE_URL: https://www.saucedemo.com/
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

@@ -21,6 +21,9 @@ report.html
 # Local config
 .env
 
+# Saved login session — real cookies, never commit
+playwright/.auth/
+
 # OS
 .DS_Store
 tests/test_setup.py
