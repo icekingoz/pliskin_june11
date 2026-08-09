@@ -9,7 +9,7 @@ jobs:
 
     env: 
       SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
-      SAUCE_PASSWORD: ${{ secrets.SECRET_SAUSE }}
+      SAUCE_PASSWORD: ${{ secrets.SAUCE_PASSWORD }}
       BASE_URL: https://www.saucedemo.com/
 
     steps:
