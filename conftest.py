@@ -13,6 +13,16 @@ USERNAME = os.getenv("SAUCE_USERNAME")
 PASSWORD = os.getenv("SAUCE_PASSWORD")
 BASE_URL = os.getenv("BASE_URL")
 
+# Fail in 1 second with a clear message, not in 12 minutes of locator timeouts.
+# `not PASSWORD` also catches the empty string — e.g. a renamed/missing GitHub
+# secret, which Actions silently resolves to "".
+if not USERNAME or not PASSWORD or not BASE_URL:
+    raise RuntimeError(
+        "SAUCE_USERNAME / SAUCE_PASSWORD / BASE_URL missing or empty. "
+        "Locally: copy .env.example to .env. "
+        "CI: check the secret names in Settings -> Secrets match tests.yml."
+    )
+
 AUTH_STATE_PATH = "playwright/.auth/state.json"
 
 # browser > context > page
@@ -26,6 +36,10 @@ def auth_state(browser):
     login_page = LoginPage(context.new_page())
     login_page.open()
     login_page.login_user(USERNAME, PASSWORD)
+    # Setup guard: prove the login WORKED before saving the session.
+    # Without this, a failed login saves a logged-out state.json and every
+    # downstream test times out on inventory locators instead.
+    login_page.page.wait_for_url("**/inventory.html")
     context.storage_state(path=AUTH_STATE_PATH)
     context.close()
 
