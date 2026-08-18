@@ -1,10 +1,9 @@
-import re
-import requests
+import pytest
 
 from api.booking_client import BookingAPIClient
 from api.builders import make_booking
 
-
+pytestmark = pytest.mark.api
 # Request
 # curl -X POST \
 #   https://restful-booker.herokuapp.com/booking \
