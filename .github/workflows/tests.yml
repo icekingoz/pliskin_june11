@@ -6,8 +6,8 @@ jobs:
   ui-tests:
     runs-on: ubuntu-latest
     env:
-      SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
-      SAUCE_PASSWORD: ${{ secrets.SAUCE_PASSWORD }}
+      SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME}}
+      SAUCE_PASSWORD: ${{ secrets.SAUCE_PASSWORD}}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
