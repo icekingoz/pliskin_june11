@@ -41,3 +41,5 @@ def created_booking(booking_client):
     payload = make_booking()
     booking_id = booking_client.create_booking(payload).json()["bookingid"]
     yield booking_id, payload
+    
+    booking_client.delete_booking(booking_id)   # the debt, paid — never asserted

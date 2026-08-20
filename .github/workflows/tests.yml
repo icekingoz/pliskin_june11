@@ -3,12 +3,14 @@ name: Tests
 on: push
 
 jobs:
+  # ----------------------------------------------------------- UI (browser)
+  # The job we already had — renamed, and now it SKIPS tests/api
+  # (the api-tests job below owns those).
   ui-tests:
     runs-on: ubuntu-latest
     env:
-      SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME}}
-      SAUCE_PASSWORD: ${{ secrets.SAUCE_PASSWORD}}
-      BASE_URL: ${{ secrets.BASE_URL }}
+      SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+      SAUCE_PASSWORD: ${{ secrets.SAUCE_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -33,15 +35,9 @@ jobs:
           retention-days: 14
 
   # ------------------------------------------------------ API (no browser)
-  # NEW — no `needs:` line, so this runs IN PARALLEL with ui-tests.
-  # No playwright install, no xvfb: this job finishes in about a minute.
+
   api-tests:
     runs-on: ubuntu-latest
-    env:
-      # The ROOT conftest.py demands these at import — even for API-only
-      # runs. Same secrets, same names.
-      SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
-      SAUCE_PASSWORD: ${{ secrets.SAUCE_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
