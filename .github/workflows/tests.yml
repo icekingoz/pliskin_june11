@@ -1,54 +1,61 @@
-
 name: Tests
 
 on: push
 
 jobs:
-  test:
+  ui-tests:
     runs-on: ubuntu-latest
-
-    env: 
-      SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
+    env:
+      SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
       SAUCE_PASSWORD: ${{ secrets.SAUCE_PASSWORD }}
-      BASE_URL: https://www.saucedemo.com/
-
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install -r requirement.txt
+      - run: pip install -r requirements.txt
       - run: playwright install --with-deps chromium
 
-      - name: Run tests
-        run: xvfb-run python -m pytest
+      - name: Run UI tests
+        run: xvfb-run python -m pytest --ignore=tests/api
 
       # WITHOUT THIS STEP, NOTHING SURVIVES THE JOB.
-      # Files written into the runner's workspace are thrown away when the job
-      # ends. report.html and test-results/ exist during the run and then vanish.
       - name: Upload report and artifacts
-        # `always()` is the important bit. Default behaviour is to skip a step
-        # once a previous one failed -- which is exactly when you want the
-        # screenshot and the trace.
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-report-${{ github.run_number }}
+          name: ui-report-${{ github.run_number }}
           path: |
             report.html
             test-results/
-          # A green run produces no screenshots and no traces, so test-results/
-          # can legitimately be empty. Don't warn about it.
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Point at the artifact
+  # ------------------------------------------------------ API (no browser)
+  # NEW — no `needs:` line, so this runs IN PARALLEL with ui-tests.
+  # No playwright install, no xvfb: this job finishes in about a minute.
+  api-tests:
+    runs-on: ubuntu-latest
+    env:
+      # The ROOT conftest.py demands these at import — even for API-only
+      # runs. Same secrets, same names.
+      SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+      SAUCE_PASSWORD: ${{ secrets.SAUCE_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+
+      - name: Run API tests
+        run: python -m pytest tests/api -v
+
+      - name: Upload report
         if: always()
-        run: |
-          echo "### Test artifacts" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Download **test-report-${{ github.run_number }}** from the Artifacts" \
-               "section at the bottom of this page." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- \`report.html\` — open it in a browser" >> $GITHUB_STEP_SUMMARY
-          echo "- \`test-results/**/trace.zip\` — drop it on https://trace.playwright.dev" >> $GITHUB_STEP_SUMMARY
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-report-${{ github.run_number }}
+          path: report.html
+          if-no-files-found: ignore
+          retention-days: 14

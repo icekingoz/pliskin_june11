@@ -25,3 +25,14 @@ def test_update_without_token_403(api_session, created_booking):
     assert r.status_code == 403
 
 
+def test_patch_changes_only_the_firstname(booking_client, created_booking):
+    """The partial change — PATCH sends ONLY what moves."""
+    booking_id, original = created_booking
+
+    r = booking_client.patch_booking(booking_id, {"firstname": "Meryl"})
+
+    assert r.status_code == 200
+    expected = {**original, "firstname": "Meryl"}   # original, with ONE change
+    assert booking_client.get_booking(booking_id).json() == expected
+    # one assert, two proofs: the change landed AND nothing else moved.
+    # (that second half is what separates PATCH testing from PUT testing)
