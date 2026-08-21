@@ -11,17 +11,8 @@ load_dotenv()
 
 USERNAME = os.getenv("SAUCE_USERNAME")
 PASSWORD = os.getenv("SAUCE_PASSWORD")
-BASE_URL = os.getenv("BASE_URL")
-
-# Fail in 1 second with a clear message, not in 12 minutes of locator timeouts.
-# `not PASSWORD` also catches the empty string — e.g. a renamed/missing GitHub
-# secret, which Actions silently resolves to "".
-if not USERNAME or not PASSWORD or not BASE_URL:
-    raise RuntimeError(
-        "SAUCE_USERNAME / SAUCE_PASSWORD / BASE_URL missing or empty. "
-        "Locally: copy .env.example to .env. "
-        "CI: check the secret names in Settings -> Secrets match tests.yml."
-    )
+# BASE_URL is config, not a secret — it gets a default, never a raise:
+BASE_URL = os.getenv("BASE_URL", "https://www.saucedemo.com/")
 
 AUTH_STATE_PATH = "playwright/.auth/state.json"
 
