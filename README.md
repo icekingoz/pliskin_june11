@@ -58,7 +58,7 @@ api/                    The same idea, applied to endpoints
   booking_client.py       one method per endpoint, no assertions
   builders.py             make_booking() — valid payloads with unique data
 
-tests/                  UI tests
+tests/ui/               UI tests
 tests/api/              API tests, with their own conftest.py
 
 conftest.py             Shared fixtures for the UI suite
