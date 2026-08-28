@@ -23,8 +23,18 @@ class BookingAPIClient:
             json=payload,
             headers=self._auth_headers(),
         )
+    
+    def patch_booking(self, booking_id, changes):
+        """PATCH — changes SOME fields. (Added during classwork.)"""
+        return self.session.patch(
+            f"/booking/{booking_id}",
+            json=changes,
+            headers=self._auth_headers(),
+        )
 
+    # ------------------------------------------------------------- Delete
     def delete_booking(self, booking_id):
+        """The LAST method — added in Lesson 17. The client is complete."""
         return self.session.delete(
             f"/booking/{booking_id}",
             headers=self._auth_headers(),

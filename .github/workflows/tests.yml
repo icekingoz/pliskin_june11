@@ -3,6 +3,9 @@ name: Tests
 on: push
 
 jobs:
+  # ----------------------------------------------------------- UI (browser)
+  # The job we already had — renamed, and now it SKIPS tests/api
+  # (the api-tests job below owns those).
   ui-tests:
     runs-on: ubuntu-latest
     env:
