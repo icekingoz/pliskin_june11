@@ -2,6 +2,14 @@ name: Tests
 
 on: push
 
+# ADDED 1 — lets the report job push to gh-pages.
+permissions:
+  contents: write
+
+# ADDED 2 — the Install Allure CLI step below uses ${ALLURE_VERSION}.
+env:
+  ALLURE_VERSION: "2.43.0"
+
 jobs:
   # ----------------------------------------------------------- UI (browser)
   ui-tests:
@@ -32,6 +40,16 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+      # ADDED 3 — the raw results the report job builds from.
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-ui
+          path: allure-results
+          if-no-files-found: ignore
+          retention-days: 7
+
   # ------------------------------------------------------ API (no browser)
 
   api-tests:
@@ -55,7 +73,17 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-  # ------------------------------------------------------ reports 
+      # ADDED 4 — same, for the API lane.
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-api
+          path: allure-results
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # ------------------------------------------------------ reports
 
   allure-report:
     name: Publish Allure report
@@ -65,7 +93,7 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4       # we need scripts/ and allure/
+      - uses: actions/checkout@v4       # we need scripts/ and support/
 
       # pattern + merge-multiple pulls allure-results-api AND allure-results-ui
       # into ONE folder. Allure never knows they came from different machines.
@@ -76,10 +104,9 @@ jobs:
           merge-multiple: true
           path: allure-results
 
-      # How failures get grouped in the report: product defect vs test defect
-      # vs flaky external dependency.
+      # CHANGED 5 — categories.json now lives in support/
       - name: Add failure categories
-        run: cp allure/categories.json allure-results/ || true
+        run: cp support/categories.json allure-results/ || true
 
       # The existing site carries the history that makes trend graphs work.
       # The very first run has no gh-pages branch yet, hence continue-on-error.
@@ -164,4 +191,4 @@ jobs:
               echo "_Not published — only \`master\` publishes to Pages._"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
-
+          
