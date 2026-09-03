@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Flaky external dependency",
+    "messageRegex": ".*(restful-booker|ConnectionError|ReadTimeout|502|503|504).*",
+    "matchedStatuses": ["broken", "failed"]
+  },
+  {
+    "name": "Element not found",
+    "messageRegex": ".*(TimeoutError|waiting for locator|strict mode violation).*",
+    "matchedStatuses": ["failed", "broken"]
+  },
+  {
+    "name": "Product defect",
+    "messageRegex": ".*AssertionError.*",
+    "matchedStatuses": ["failed"]
+  },
+  {
+    "name": "Test defect",
+    "messageRegex": ".*(AttributeError|KeyError|TypeError|NameError|ImportError).*",
+    "matchedStatuses": ["broken"]
+  },
+  {
+    "name": "Ignored / skipped on purpose",
+    "matchedStatuses": ["skipped"]
+  }
+]
