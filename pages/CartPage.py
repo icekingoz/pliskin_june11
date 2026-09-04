@@ -19,6 +19,7 @@ class CartPage:
 
         self.checkout_button = page.locator("[data-test=\"checkout\"]")
         self.continue_shopping_button = page.locator("[data-test=\"continue-shopping\"]")
+        self.cart_badge = page.locator("[data-test=\"shopping-cart-badge\"]")
 
         # Burger menu (used by logout)
         self.menu_button = page.locator("#react-burger-menu-btn")
@@ -65,6 +66,15 @@ class CartPage:
     def get_item_count(self):
         # How many rows are in the cart right now.
         return self.cart_items.count()
+
+    def get_cart_badge(self):
+        return self.cart_badge
+
+    def get_cart_badge_count(self):
+        # Missing from the DOM when the cart is empty.
+        if self.cart_badge.count() == 0:
+            return 0
+        return int(self.cart_badge.text_content() or "0")
 
     def get_item_names(self):
         # Every product name in the cart, as a Python list of strings.

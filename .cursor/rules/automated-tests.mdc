@@ -1,0 +1,83 @@
+---
+description: Pytest assert for UI and API tests; API uses requests only
+alwaysApply: true
+---
+
+# Automated tests
+
+Keep assertions in tests, never in page objects. Use pytest `assert` only — not Playwright `expect()`. API tests use the `requests` library only.
+
+## Page objects expose state; tests assert
+
+Page objects may hold locators, perform actions, and return locators or data. They must not call `assert` or Playwright `expect()`.
+
+```python
+# ❌ BAD — assertion lives in the page object
+class LoginPage:
+    def login_standard_user(self):
+        self.login_button.click()
+        assert self.page.locator("[data-test='title']").text_content() == "Products"
+
+# ✅ GOOD — page object acts; test asserts
+class LoginPage:
+    def login_standard_user(self) -> InventoryPage:
+        self.username.fill("standard_user")
+        self.password.fill("secret_sauce")
+        self.login_button.click()
+        return InventoryPage(self.page)
+
+def test_standard_user_reaches_inventory(login_page: LoginPage):
+    inventory_page = login_page.login_standard_user()
+    assert inventory_page.get_title().text_content() == "Products"
+```
+
+## UI: pytest `assert`, never `expect()`
+
+Do not import or use `from playwright.sync_api import expect`. Do not use `time.sleep()`.
+
+```python
+# ❌ BAD
+from playwright.sync_api import expect
+expect(page.locator("[data-test='error']")).to_be_visible()
+expect(page.locator("[data-test='error']")).to_contain_text("locked out")
+
+# ✅ GOOD
+error = page.locator("[data-test='error']")
+assert error.is_visible()
+assert "locked out" in (error.text_content() or "")
+```
+
+## API: `requests` + pytest `assert`
+
+Call HTTP with `requests` only (directly or via a client that wraps `requests`). Do not use Playwright `APIRequestContext`, `httpx`, or other HTTP clients. Assert on status and body with pytest `assert`. Do not add sleeps.
+
+```python
+# ❌ BAD
+from playwright.sync_api import expect
+response = await api_request_context.post("/auth", data={...})
+expect(response).to_be_ok()
+
+# ✅ GOOD
+import requests
+
+response = requests.post(
+    f"{BASE_URL}/auth",
+    json={"username": "admin", "password": "password123"},
+    timeout=10,
+)
+assert response.status_code == 200
+assert response.json()["token"]
+```
+
+## Do not weaken assertions to pass
+
+If a test fails, fix the product, locator, wait, or test data. Do not delete an assertion, comment it out, broaden it, or swap a specific check for a weaker one.
+
+```python
+# ❌ BAD — truthy only, or commented out
+# assert page.locator(".complete-header").inner_text() == "Thank you for your order!"
+assert page.locator(".complete-header").inner_text()
+
+# ✅ GOOD
+assert page.locator(".complete-header").inner_text() == "Thank you for your order!"
+```

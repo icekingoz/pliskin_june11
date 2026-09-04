@@ -1,0 +1,66 @@
+def test_add_three_items_and_remove_one(cart_with):
+    cart_page = cart_with(
+        "sauce-labs-backpack",
+        "sauce-labs-bike-light",
+        "sauce-labs-bolt-t-shirt",
+    )
+
+    expect(cart_page.cart_items).to_have_count(3)
+    expect(cart_page.item_names).to_have_text(
+        [
+            "Sauce Labs Backpack",
+            "Sauce Labs Bike Light",
+            "Sauce Labs Bolt T-Shirt",
+        ]
+    )
+
+    cart_page.remove_item("sauce-labs-bike-light")
+
+    expect(cart_page.cart_items).to_have_count(2)
+    expect(cart_page.item_names).to_have_text(
+        [
+            "Sauce Labs Backpack",
+            "Sauce Labs Bolt T-Shirt",
+        ]
+    )
+
+
+
+Added test_add_three_items_and_remove_one in tests/ui/test_cart.py.
+
+It uses the existing cart_with fixture to put Sauce Labs Backpack, Bike Light, and Bolt T-Shirt in the cart, checks that all three names are there, removes the bike light, then checks that two items remain and the remaining names are backpack and bolt T-shirt. Playwright expect() is used so those checks wait instead of sampling once.
+
+The test passed locally:
+
+tests/ui/test_cart.py::test_add_three_items_and_remove_one[chromium] PASSED
+
+///////////////////
+
+
+
+def test_add_three_items_and_remove_one(cart_with):
+    cart_page = cart_with(
+        "sauce-labs-backpack",
+        "sauce-labs-bike-light",
+        "sauce-labs-bolt-t-shirt",
+    )
+
+    expect(cart_page.cart_items).to_have_count(3)
+    expect(cart_page.item_names).to_have_text(
+        [
+            "Sauce Labs Backpack",
+            "Sauce Labs Bike Light",
+            "Sauce Labs Bolt T-Shirt",
+        ]
+    )
+
+    cart_page.remove_item("sauce-labs-bike-light")
+
+    expect(cart_page.cart_items).to_have_count(2)
+    expect(cart_page.item_names).to_have_text(
+        [
+            "Sauce Labs Backpack",
+            "Sauce Labs Bolt T-Shirt",
+        ]
+    )
+
