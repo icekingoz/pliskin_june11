@@ -28,17 +28,25 @@ def test_login_successful(login_page: LoginPage, username):
     assert inventory_page.get_title().text_content() == "Products"
 
 
-# Negative as well
+LOCKED_OUT = "Epic sadface: Sorry, this user has been locked out."
+BAD_CREDENTIALS = (
+    "Epic sadface: Username and password do not match any user in this service"
+)
+USERNAME_REQUIRED = "Epic sadface: Username is required"
+PASSWORD_REQUIRED = "Epic sadface: Password is required"
+
+
 @pytest.mark.parametrize(
-    "username, error",
+    "username, password, error",
     [
-        ("locked_out_user", "Epic sadface: Sorry, this user has been locked out."),
-        ("not_a_user", "Epic sadface: Username and password do not match any user in this service"),
+        ("locked_out_user", "secret_sauce", LOCKED_OUT),
+        ("standard_user", "wrong_password", BAD_CREDENTIALS),
+        ("not_a_user", "secret_sauce", BAD_CREDENTIALS),
+        ("", "secret_sauce", USERNAME_REQUIRED),
+        ("standard_user", "", PASSWORD_REQUIRED),
+        ("", "", USERNAME_REQUIRED),
     ],
 )
-def test_login_fails(login_page: LoginPage, username, error):
-    login_page.login_user(username, "secret_sauce")
-
-    actual_error = login_page.get_error_message().text_content()
-    #    expected  vs  actual
-    assert error in actual_error
+def test_login_fails(login_page: LoginPage, username, password, error):
+    login_page.login_user(username, password)
+    assert login_page.get_error_message().text_content() == error

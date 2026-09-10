@@ -20,8 +20,13 @@ class InventoryPage:
 
         # NEW: the cart icon in the top-right corner
         self.cart_link = page.locator("[data-test=\"shopping-cart-link\"]")
+        self.inventory_container = page.locator("[data-test=\"inventory-container\"]")
 
     # Methods (Wrapper)
+    def open(self):
+        self.page.goto("/inventory.html")
+        return self
+
     def add_item_to_cart(self, item_id: str):
         self.page.locator(f"[data-test=\"add-to-cart-{item_id}\"]").click()
         return self
@@ -39,6 +44,9 @@ class InventoryPage:
     # Getters (are used for assertions later.)
     def get_title(self):
         return self.title
+
+    def get_inventory_container(self):
+        return self.inventory_container
 
     def get_sort_dropdown(self):
         return self.sort_dropdown

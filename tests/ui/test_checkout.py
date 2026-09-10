@@ -63,3 +63,53 @@ def test_checkout_overview_subtotal(checkout_started: CheckoutPage):
 # After ordering, "Back Home" returns us to the products page.
 def test_back_home_after_order(completed_order: CheckoutPage):
     assert completed_order.back_home().get_title().text_content() == "Products"
+
+
+# --- Boundary: checkout information form ---
+# Validation is first-error-wins: first name, then last name, then postal code.
+
+def test_checkout_empty_first_name_shows_its_own_error(checkout_started: CheckoutPage):
+    checkout_started.fill_information("", "Snake", "00001")
+    assert checkout_started.get_error_message().text_content() == "Error: First Name is required"
+    assert checkout_started.get_title().text_content() == "Checkout: Your Information"
+
+
+def test_checkout_empty_last_name_shows_its_own_error(checkout_started: CheckoutPage):
+    checkout_started.fill_information("Solid", "", "00001")
+    assert checkout_started.get_error_message().text_content() == "Error: Last Name is required"
+    assert checkout_started.get_title().text_content() == "Checkout: Your Information"
+
+
+def test_checkout_empty_postal_code_shows_its_own_error(checkout_started: CheckoutPage):
+    checkout_started.fill_information("Solid", "Snake", "")
+    assert checkout_started.get_error_message().text_content() == "Error: Postal Code is required"
+    assert checkout_started.get_title().text_content() == "Checkout: Your Information"
+
+
+def test_checkout_empty_first_and_last_name_shows_first_name_error(
+    checkout_started: CheckoutPage,
+):
+    checkout_started.fill_information("", "", "00001")
+    assert checkout_started.get_error_message().text_content() == "Error: First Name is required"
+    assert checkout_started.get_title().text_content() == "Checkout: Your Information"
+
+
+def test_checkout_all_three_fields_empty_shows_first_name_error(
+    checkout_started: CheckoutPage,
+):
+    checkout_started.fill_information("", "", "")
+    assert checkout_started.get_error_message().text_content() == "Error: First Name is required"
+    assert checkout_started.get_title().text_content() == "Checkout: Your Information"
+
+
+def test_checkout_accepts_200_character_values(checkout_started: CheckoutPage):
+    long_value = "A" * 200
+    checkout_started.fill_information(long_value, long_value, long_value)
+    # TODO: confirm whether the app truncates, rejects, or accepts 200-char values.
+    # Do not guess the next-screen title or an error string until that is observed.
+
+
+def test_checkout_accepts_unicode_values(checkout_started: CheckoutPage):
+    checkout_started.fill_information("ソリッド", "スネーク", "〒100-0001")
+    # TODO: confirm whether unicode names/postcodes reach Overview or surface an error.
+    # Do not guess the message or title until that is observed.
