@@ -1,11 +1,11 @@
 # Playwright + Pytest — UI and API Test Framework
 
-[Tests](/actions/workflows/tests.yml/badge.svg)
-
 An automated test suite for a web shop and a REST API, written in Python with Playwright and
 pytest. It runs on every push through GitHub Actions and publishes a report anyone can open.
 
-**Live test report:** *insert after completion
+[![Tests](https://github.com/icekingoz/pliskin_june11/actions/workflows/tests.yml/badge.svg)](https://github.com/icekingoz/pliskin_june11/actions/workflows/tests.yml)
+
+**Live test report:** https://icekingoz.github.io/pliskin_june11/
 
 | | |
 |---|---|
